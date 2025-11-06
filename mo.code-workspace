@@ -1,0 +1,10 @@
+{
+	"folders": [
+		{
+			"path": "esp32_chicken_lamp"
+		},
+		{
+			"path": "esp32_chicken_water"
+		}
+	]
+}
