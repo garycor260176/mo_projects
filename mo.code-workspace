@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "esp32_chicken_water"
+		},
+		{
+			"path": "esp32_mirrow"
 		}
 	]
 }
