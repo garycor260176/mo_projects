@@ -8,6 +8,12 @@
 		},
 		{
 			"path": "esp32_mirrow"
+		},
+		{
+			"path": "esp32_chicken_v2"
+		},
+		{
+			"path": "D:/install/mk/projects/libsV2"
 		}
 	]
 }
