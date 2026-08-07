@@ -1,19 +1,16 @@
 {
 	"folders": [
 		{
-			"path": "esp32_chicken_lamp"
-		},
-		{
-			"path": "esp32_chicken_water"
-		},
-		{
-			"path": "esp32_mirrow"
-		},
-		{
 			"path": "esp32_chicken_v2"
 		},
 		{
 			"path": "D:/install/mk/projects/libsV2"
+		},
+		{
+			"path": "esp32_chicken_lamp_v2"
+		},
+		{
+			"path": "esp32_meteo_v2"
 		}
 	]
 }

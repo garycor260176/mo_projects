@@ -1,11 +1,10 @@
 #include <mqtt_v2.h>
 #include <OneWire.h>
 #include <Preferences.h>
-
 #include <cl_ds18b20.h>
 
-#define DEF_PATH "V2.0/CHICKEN"
-#define DEF_SUBPATH_DS18B20     "dht22"
+#define DEF_PATH "V3/CHICKEN"
+#define DEF_SUBPATH_DS18B20     "ds18b20"
 #define DEF_RELAYS_NUMS  3
 
 int pins[] = {
@@ -56,7 +55,7 @@ String getName(int i) {
 void read_eeprom(s_state* state, boolean debug = true){
   for(int i = 0; i < DEF_RELAYS_NUMS; i++) {
     String t = getName(i) + "_mode";
-    state->relays[i].mode = preferences.getInt(t.c_str(), 0);
+    state->relays[i].mode = preferences.getInt(t.c_str(), 2);
     if(state->relays[i].mode < 0 || state->relays[i].mode > 2) state->relays[i].mode = 0;
     if(debug) Serial.println("read " + t + " = " + String(state->relays[i].mode));
   }
@@ -142,6 +141,8 @@ void loop() {
   switch(cur_state.relays[0].mode){
     case 1: cur_state.relays[0].state = HIGH; break;
     case 2: cur_state.relays[0].state = LOW; break;
+    default:
+    break;
   }
 
 //вытяжка
@@ -164,11 +165,20 @@ void loop() {
     case 2: cur_state.relays[2].state = LOW; break;
     default:
       if(sens_temperature_val.readed){
-        if(sens_temperature_val.f_value <= cur_state.ini.t_on) {
-          cur_state.relays[2].state = HIGH;
-        } else if(sens_temperature_val.f_value > cur_state.ini.t_off) {
-          cur_state.relays[2].state = LOW;
+        int val = HIGH;
+        if(sens_temperature_val.f_value > cur_state.ini.t_max) {
+          val = LOW; 
         }
+        if(val == HIGH) {
+          if(sens_temperature_val.f_value <= cur_state.ini.t_on) {
+            val = HIGH;
+          } else if(sens_temperature_val.f_value > cur_state.ini.t_off) {
+            val = LOW;
+          } else {
+            val = cur_state.relays[2].state;
+          }
+        }
+        cur_state.relays[2].state = val;
       }
     break;
   }
@@ -190,7 +200,7 @@ void Msg_t_max( const String &message ){
 }
 void Msg_relays_mode(const String &topic, const String &message) {
   for(int i = 0; i < DEF_RELAYS_NUMS; i++) {
-    if(topic == "CHICKEN/modes/" + getName(i)) {
+    if(topic == String(DEF_PATH) + "/modes/" + getName(i)) {
       cur_state.relays[i].mode = message.toInt();
       if(cur_state.relays[i].mode < 0 || cur_state.relays[i].mode > 2) cur_state.relays[i].mode = 0;
       write_eeprom();
