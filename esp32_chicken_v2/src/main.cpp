@@ -14,11 +14,17 @@ int pins[] = {
 }; 
 
 void Subscribe();
+void refresh(boolean refresh = false);
+void onRefresh(){
+  refresh(true);
+}
 
 mqtt_v2 client( 
   "ESP32_CHICKEN",
   DEF_PATH,
-  Subscribe);
+  Subscribe,
+  NULL,
+  onRefresh);
 
 OneWire oneWire(32);
 DallasTemperature ds18b20(&oneWire);
@@ -219,4 +225,9 @@ void Subscribe(){
   client.Subscribe("settings/t/on", Msg_t_on); 
   client.Subscribe("settings/t/off", Msg_t_off); 
   client.Subscribe("settings/t/max", Msg_t_max); 
+}
+
+void refresh(boolean refresh){  
+  sens_temperature.loop(refresh);
+  report(0);
 }

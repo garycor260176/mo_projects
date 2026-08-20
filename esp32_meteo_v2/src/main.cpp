@@ -24,11 +24,19 @@ uint8_t PIN_BH1750FVI_ADDR  = 16;
 #define DEF_SUBPATH_WSPEED    "wspeed"
 
 void Subscribe();
+void refresh(boolean refresh=false);
+
+void onRefresh(){
+  refresh(true);
+}
 
 mqtt_v2 client( 
   "ESP32_METEO",
   DEF_PATH,
-  Subscribe);
+  Subscribe,
+  NULL,
+  onRefresh
+);
 
 OneWire oneWire(PIN_DS18B20);
 DallasTemperature ds18b20(&oneWire);
@@ -49,6 +57,15 @@ cl_rg11 rg11(PIN_RG11, &client, String(DEF_SUBPATH_RG11), BUCKET_SIZE, false);
 cl_wdir wdir(ADC1_CHANNEL_4, &client, String(DEF_SUBPATH_WDIR), 1000, false);
 
 cl_wspeed wspeed(ADC1_CHANNEL_5, &client, String(DEF_SUBPATH_WSPEED), 100, false);
+
+void refresh(boolean refresh){  
+  sens_temperature.loop(refresh);
+  bme280.loop(refresh);
+  bh1750fvi.loop(refresh);
+  rg11.loop();
+  wdir.loop(refresh);
+  wspeed.loop(refresh);
+}
 
 void setup() {
   Serial.begin(115200);                                         
@@ -74,13 +91,8 @@ void report(int mode ){
 void loop() {
   client.loop();
 
-  sens_temperature.loop();
-  bme280.loop();
-  bh1750fvi.loop( );
-  rg11.loop( );
-  wdir.loop( );
-  wspeed.loop( );
-  
+  refresh();
+
   report((client.flag_start ? 0 : 1)); //отправляем все
 }
 
